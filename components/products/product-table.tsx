@@ -43,7 +43,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
           {products.map((product) => {
             const stockStatus = getStockStatus(product.stock)
             return (
-              <TableRow key={product._id}>
+              <TableRow key={product._id} className="text-xs sm:text-sm">
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>Rp{product.price.toLocaleString("id-ID")}</TableCell>

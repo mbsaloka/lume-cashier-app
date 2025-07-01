@@ -113,7 +113,7 @@ export function PaymentFlow({ total, onComplete, onBack }: PaymentFlowProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center">
-          <p className="text-2xl font-bold">${total.toFixed(2)}</p>
+          <p className="text-2xl font-bold">Rp{total.toLocaleString("id-ID")}</p>
           <p className="text-gray-600">Total Amount</p>
         </div>
 

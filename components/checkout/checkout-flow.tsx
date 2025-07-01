@@ -1,16 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ProductSelector } from "./product-selector"
 import { CartSummary } from "./cart-summary"
 import { PaymentFlow } from "./payment-flow"
 import { useCart } from "@/components/providers/cart-provider"
+import { el } from "date-fns/locale";
 
 type CheckoutStep = "select" | "review" | "payment" | "complete"
 
 export function CheckoutFlow() {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("select")
   const { items, total } = useCart()
+
+  const stepContainerRef = useRef<HTMLDivElement | null>(null)
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([])
+  const stepKeys: CheckoutStep[] = ["select", "review", "payment", "complete"]
 
   const handleProceedToReview = () => {
     if (items.length > 0) {
@@ -30,29 +35,49 @@ export function CheckoutFlow() {
     setCurrentStep("select")
   }
 
+  useEffect(() => {
+    const index = stepKeys.indexOf(currentStep)
+    const target = stepRefs.current[index]
+    if (target && stepContainerRef.current) {
+      const container = stepContainerRef.current
+      container.scrollTo({
+        left: target.offsetLeft - container.offsetLeft - 16,
+        behavior: "smooth",
+      })
+    }
+  }, [currentStep])
+
   return (
     <div className="space-y-6">
       {/* Step indicator */}
-      <div className="flex items-center justify-center space-x-4">
-        {["Select Products", "Review Order", "Payment", "Complete"].map((step, index) => {
-          const stepKeys: CheckoutStep[] = ["select", "review", "payment", "complete"]
-          const isActive = stepKeys[index] === currentStep
+      <div
+        ref={stepContainerRef}
+        className="flex items-center justify-start space-x-4 overflow-x-auto whitespace-nowrap px-4 sm:justify-center no-scrollbar"
+      >
+        {stepKeys.map((step, index) => {
+          const isActive = step === currentStep
           const isCompleted = stepKeys.indexOf(currentStep) > index
 
           return (
-            <div key={step} className="flex items-center">
+            <div
+              key={step}
+              className="flex items-center flex-shrink-0"
+              ref={(el) => void (stepRefs.current[index] = el)}
+            >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   isActive
                     ? "bg-rose-600 text-white"
                     : isCompleted
-                      ? "bg-green-600 text-white"
+                      ? "bg-green-500 text-white"
                       : "bg-gray-200 text-gray-600"
                 }`}
               >
                 {index + 1}
               </div>
-              <span className={`ml-2 text-sm ${isActive ? "text-rose-600 font-medium" : "text-gray-500"}`}>{step}</span>
+              <span className={`ml-2 text-sm ${isActive ? "text-rose-600 font-medium" : "text-gray-500"}`}>
+                {["Select Products", "Review Order", "Payment", "Complete"][index]}
+              </span>
               {index < 3 && <div className="w-8 h-px bg-gray-300 mx-4" />}
             </div>
           )

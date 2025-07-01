@@ -50,7 +50,7 @@ export function RecentTransactions() {
   }, [])
 
   const stringifyItems = (items: TransactionItem[]) => {
-    return items.map(item => `${item.quantity}x ${item.name} (${item.price.toLocaleString("id-ID")})`).join("; ")
+    return items.map(item => `${item.quantity}x ${item.name}`).join(", ")
   }
 
   return (
@@ -61,20 +61,27 @@ export function RecentTransactions() {
       <CardContent>
         <div className="space-y-4">
           {transactions.map((transaction) => (
-            <div key={transaction._id} className="flex items-center justify-between p-4 border rounded-lg">
+            <div
+              key={transaction._id}
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-2 sm:gap-4"
+            >
               <div className="flex-1">
-                <p className="font-medium">{transaction._id}</p>
+                <p className="font-medium break-words">{transaction._id}</p>
                 <p className="text-sm text-gray-600">{formatDateWIB(transaction.createdAt)}</p>
                 <p className="text-sm text-gray-500">{stringifyItems(transaction.items)}</p>
               </div>
-              <Badge className="mr-8 bg-green-100 text-green-800">{transaction.method}</Badge>
-              <div className="text-right">
-                <p className="font-bold">Rp{transaction.total.toLocaleString("id-ID")}</p>
+
+              <div className="flex items-center justify-between sm:justify-end sm:flex-row gap-2">
+                <Badge className="bg-green-100 text-green-800">{transaction.method.toUpperCase()}</Badge>
+                <p className="font-bold text-right sm:text-left">
+                  Rp{transaction.total.toLocaleString("id-ID")}
+                </p>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
+
   )
 }

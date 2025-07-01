@@ -35,7 +35,7 @@ export function DashboardStats() {
         setStats([
           {
             title: "Total Sales",
-            value: `Rp${data.totalSales.toLocaleString()}`,
+            value: `Rp${data.totalSales.toLocaleString("id-ID")}`,
             icon: DollarSign,
           },
           {

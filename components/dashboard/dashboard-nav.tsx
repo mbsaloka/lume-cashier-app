@@ -78,7 +78,7 @@ export function DashboardNav() {
                   className={cn(
                     "block pl-3 pr-4 py-2 border-l-4 text-base font-medium",
                     pathname === item.href
-                      ? "bg-blue-50 border-blue-500 text-blue-700"
+                      ? "bg-gray-50 border-rose-500 text-rose-700"
                       : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700",
                   )}
                   onClick={() => setMobileMenuOpen(false)}

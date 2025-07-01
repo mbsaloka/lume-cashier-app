@@ -93,7 +93,7 @@ export function CartSummary({ onProceed, showEdit, onEdit }: CartSummaryProps) {
               Clear Cart
             </Button>
             <Button onClick={onProceed} className="flex-1">
-              {showEdit ? "Proceed to Payment" : "Review Order"}
+              {showEdit ? "Proceed" : "Review Order"}
             </Button>
           </div>
         </div>
