@@ -35,8 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    console.log("username | USER: ", username, ADMIN_USER)
-    console.log("password | PASS: ", password, ADMIN_PASS)
     if (username === ADMIN_USER && password === ADMIN_PASS) {
       const userData = {
         id: "1",
