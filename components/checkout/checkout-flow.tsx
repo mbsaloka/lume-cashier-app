@@ -5,7 +5,6 @@ import { ProductSelector } from "./product-selector"
 import { CartSummary } from "./cart-summary"
 import { PaymentFlow } from "./payment-flow"
 import { useCart } from "@/components/providers/cart-provider"
-import { el } from "date-fns/locale";
 
 type CheckoutStep = "select" | "review" | "payment" | "complete"
 
@@ -17,13 +16,17 @@ export function CheckoutFlow() {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([])
   const stepKeys: CheckoutStep[] = ["select", "review", "payment", "complete"]
 
-  const handleProceedToReview = () => {
+  const [selectMethod, setSelectMethod] = useState<"qris" | "cash" | "transfer">("qris")
+
+  const handleProceedToReview = (method: "qris" | "cash" | "transfer") => {
     if (items.length > 0) {
+      setSelectMethod(method)
       setCurrentStep("review")
     }
   }
 
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = (method: "qris" | "cash" | "transfer") => {
+    setSelectMethod(method)
     setCurrentStep("payment")
   }
 
@@ -91,20 +94,31 @@ export function CheckoutFlow() {
             <ProductSelector />
           </div>
           <div>
-            <CartSummary onProceed={handleProceedToReview} />
+            <CartSummary
+              onProceed={handleProceedToReview}
+              setMethod={setSelectMethod}
+              method={selectMethod}
+            />
           </div>
         </div>
       )}
 
       {currentStep === "review" && (
         <div className="max-w-2xl mx-auto">
-          <CartSummary onProceed={handleProceedToPayment} showEdit={true} onEdit={() => setCurrentStep("select")} />
+          <CartSummary
+            onProceed={(method: "qris" | "cash" | "transfer") => handleProceedToPayment(method)}
+            showEdit={true}
+            onEdit={() => setCurrentStep("select")}
+            currentStep={currentStep}
+            setMethod={setSelectMethod}
+            method={selectMethod}
+          />
         </div>
       )}
 
       {currentStep === "payment" && (
         <div className="max-w-md mx-auto">
-          <PaymentFlow total={total} onComplete={handlePaymentComplete} onBack={() => setCurrentStep("review")} />
+          <PaymentFlow total={total} method={selectMethod} onComplete={handlePaymentComplete} onBack={() => setCurrentStep("review")} />
         </div>
       )}
 
