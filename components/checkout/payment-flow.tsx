@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCart } from "@/components/providers/cart-provider"
 import { ConfirmPaymentDialog } from "./confirm-payment-dialog"
-import { Check } from "lucide-react"
+import { PaymentAccountCard } from "./payment-account-card"
+import Image from "next/image"
 
 interface PaymentFlowProps {
   total: number
@@ -21,6 +22,12 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
   const { items, clearCart } = useCart()
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+
+  const paymentAccounts = [
+    { bank: "BCA", number: "0892013624", name: "Nazwarahma Hannum Prasetya" },
+    { bank: "Shopeepay", number: "081216522480", name: "juaazura_" },
+    { bank: "Gopay", number: "081216522480", name: "Nazwarahma" },
+  ]
 
   const createTransaction = async () => {
     const payload = {
@@ -49,13 +56,6 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
       console.error("Error saving transaction:", error)
     }
   }
-
-  useEffect(() => {
-    if (method === "qris") {
-      const mockQrData = `QRIS-${Date.now()}-${total.toFixed(2)}`
-      setQrCode(mockQrData)
-    }
-  }, [total, method])
 
   const handleConfirmPayment = async () => {
     setConfirmDialogOpen(false)
@@ -131,23 +131,26 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
           <div className="flex justify-center">
             <div className="w-full max-w-xs min-h-[12rem] bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center p-4">
               {paymentStatus === "waiting" && method === "qris" && (
-                <div className="text-center">
-                  <div className="w-48 h-48 bg-white border border-gray-300 flex items-center justify-center mb-2">
-                    <div className="grid grid-cols-8 gap-1">
-                      {Array.from({ length: 64 }).map((_, i) => (
-                        <div key={i} className={`w-2 h-2 ${Math.random() > 0.5 ? "bg-black" : "bg-white"}`} />
-                      ))}
-                    </div>
+                <div className="flex justify-center">
+                  <div className="w-full max-w-xs">
+                    <Image
+                      src="/qris_code.jpg"
+                      alt="QRIS Code"
+                      width={300}
+                      height={300}
+                      className="object-contain rounded-md border border-gray-300 shadow-sm w-full h-auto"
+                      priority
+                    />
                   </div>
-                  <p className="text-xs text-gray-500">Mock QRIS Code</p>
                 </div>
               )}
 
               {paymentStatus === "waiting" && method === "transfer" && (
-                <div className="text-center space-y-2 text-sm">
-                  <p className="text-gray-600">Transfer to:</p>
-                  <p className="font-medium">BCA - 1234567890</p>
-                  <p>a.n. My Account</p>
+                <div className="space-y-4 w-full">
+                  <p className="text-center text-sm text-gray-600">Transfer to one of the following accounts:</p>
+                  {paymentAccounts.map((acc, index) => (
+                    <PaymentAccountCard key={index} {...acc} />
+                  ))}
                 </div>
               )}
 
