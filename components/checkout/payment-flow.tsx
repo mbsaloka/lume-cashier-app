@@ -134,7 +134,7 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
                 <div className="flex justify-center">
                   <div className="w-full max-w-xs">
                     <Image
-                      src="/qris_code.jpg"
+                      src="/qris_code_2.jpg"
                       alt="QRIS Code"
                       width={300}
                       height={300}
