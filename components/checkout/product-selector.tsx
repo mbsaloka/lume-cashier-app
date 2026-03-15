@@ -17,13 +17,12 @@ interface Product {
 }
 
 export function ProductSelector() {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/products`)
+        const response = await fetch(`/api/products`)
         if (!response.ok) {
           throw new Error("Failed to fetch products")
         }

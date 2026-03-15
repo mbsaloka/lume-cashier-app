@@ -19,6 +19,8 @@ interface Transaction {
   items: TransactionItem[]
   total: number
   method: string
+  customerName?: string
+  workerNumber?: string
 }
 
 export function formatDateWIB(utcString: string) {
@@ -35,7 +37,6 @@ export function formatDateWIB(utcString: string) {
 }
 
 export function TransactionHistory() {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
   const [totalRevenue, setTotalRevenue] = useState(0)
@@ -44,7 +45,7 @@ export function TransactionHistory() {
   useEffect(() => {
     async function fetchTransactions() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/transactions`)
+        const response = await fetch(`/api/transactions`)
         if (!response.ok) throw new Error("Failed to fetch transactions")
         const data = await response.json()
         setTransactions(data)
@@ -58,7 +59,7 @@ export function TransactionHistory() {
   useEffect(() => {
     async function fetchRevenue() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/dashboard/stats`)
+        const response = await fetch(`/api/dashboard/stats`)
         if (!response.ok) throw new Error("Failed to fetch stats")
         const data = await response.json()
         setTotalRevenue(data.totalSales)
@@ -83,8 +84,16 @@ export function TransactionHistory() {
     }
 
     const csvContent = [
-      ["Transaction ID", "Date", "Items", "Total", "Payment Method"],
-      ...filteredTransactions.map((t) => [t._id, formatDateWIB(t.createdAt), stringifyItems(t.items), t.total.toString(), t.method]),
+      ["Transaction ID", "Date", "Items", "Total", "Payment Method", "Customer Name", "Worker Number"],
+      ...filteredTransactions.map((t) => [
+        t._id,
+        formatDateWIB(t.createdAt),
+        stringifyItems(t.items),
+        t.total.toString(),
+        t.method,
+        t.customerName || "",
+        t.workerNumber || ""
+      ]),
     ]
       .map((row) => row.join(","))
       .join("\n")
@@ -163,7 +172,16 @@ export function TransactionHistory() {
                       {transaction.items.map(item => `${item.quantity}x ${item.name}`).join(", ")}
                     </TableCell>
                     <TableCell>Rp{transaction.total.toLocaleString("id-ID")}</TableCell>
-                    <TableCell>{transaction.method.toLocaleUpperCase()}</TableCell>
+                    <TableCell>
+                      <div>
+                        <div>{transaction.method.toUpperCase()}</div>
+                        {transaction.method === "potong gaji" && transaction.customerName && transaction.workerNumber && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {transaction.customerName} ({transaction.workerNumber})
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

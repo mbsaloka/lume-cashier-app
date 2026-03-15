@@ -8,11 +8,11 @@ import { useCart } from "@/components/providers/cart-provider"
 import { Minus, Plus, Trash2, Edit } from "lucide-react"
 
 interface CartSummaryProps {
-  onProceed: (method: "qris" | "cash" | "transfer") => void
+  onProceed: (method: "qris" | "cash" | "transfer" | "potong gaji") => void
   showEdit?: boolean
   onEdit?: () => void
   currentStep?: string
-  setMethod: (method: "qris" | "cash" | "transfer") => void
+  setMethod: (method: "qris" | "cash" | "transfer" | "potong gaji") => void
   method: string
 }
 
@@ -103,6 +103,7 @@ export function CartSummary({ onProceed, showEdit, onEdit, currentStep, setMetho
                 <SelectItem value="qris">QRIS</SelectItem>
                 <SelectItem value="transfer">Bank Transfer/E-Wallet</SelectItem>
                 <SelectItem value="cash">Cash</SelectItem>
+                <SelectItem value="potong gaji">Potong Gaji</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -111,7 +112,7 @@ export function CartSummary({ onProceed, showEdit, onEdit, currentStep, setMetho
             <Button variant="outline" onClick={currentStep == "review" ? onEdit : clearCart} className="flex-1 bg-transparent">
               {currentStep == "review" ? "Back" : "Clear Cart"}
             </Button>
-            <Button onClick={() => onProceed(method as "qris" | "cash" | "transfer")} className="flex-1">
+            <Button onClick={() => onProceed(method as "qris" | "cash" | "transfer" | "potong gaji")} className="flex-1">
               {showEdit ? "Proceed" : "Review Order"}
             </Button>
           </div>

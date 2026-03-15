@@ -16,6 +16,8 @@ interface Transaction {
   items: TransactionItem[]
   total: number
   method: string
+  customerName?: string
+  workerNumber?: string
 }
 
 export function formatDateWIB(utcString: string) {
@@ -32,13 +34,12 @@ export function formatDateWIB(utcString: string) {
 }
 
 export function RecentTransactions() {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
     async function fetchTransactions() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/transactions`)
+        const response = await fetch(`/api/transactions`)
         if (!response.ok) throw new Error("Failed to fetch transactions")
         const data = await response.json()
         setTransactions(data)
@@ -69,6 +70,11 @@ export function RecentTransactions() {
                 <p className="font-medium break-words">{transaction._id}</p>
                 <p className="text-sm text-gray-600">{formatDateWIB(transaction.createdAt)}</p>
                 <p className="text-sm text-gray-500">{stringifyItems(transaction.items)}</p>
+                {transaction.method === "potong gaji" && transaction.customerName && transaction.workerNumber && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    {transaction.customerName} (Worker: {transaction.workerNumber})
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between sm:justify-end sm:flex-row gap-2">

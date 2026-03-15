@@ -25,7 +25,6 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -83,8 +82,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     if (!pendingFormData) return
 
     try {
-      const response = await fetch(`
-        ${API_BASE_URL}/api/products${product ? `/${product._id}` : ""}`, {
+      const response = await fetch(`/api/products${product ? `/${product._id}` : ""}`, {
         method: product ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
@@ -136,9 +134,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Keychain">Keychain</SelectItem>
-                  <SelectItem value="DIY">DIY</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="makanan">Makanan</SelectItem>
                 </SelectContent>
               </Select>
             </div>

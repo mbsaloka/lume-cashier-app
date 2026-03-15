@@ -63,7 +63,7 @@ export function LoginForm() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin@store.com"
+              placeholder="username"
               required
             />
           </div>

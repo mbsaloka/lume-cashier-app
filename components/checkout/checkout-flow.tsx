@@ -16,16 +16,16 @@ export function CheckoutFlow() {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([])
   const stepKeys: CheckoutStep[] = ["select", "review", "payment", "complete"]
 
-  const [selectMethod, setSelectMethod] = useState<"qris" | "cash" | "transfer">("qris")
+  const [selectMethod, setSelectMethod] = useState<"qris" | "cash" | "transfer" | "potong gaji">("qris")
 
-  const handleProceedToReview = (method: "qris" | "cash" | "transfer") => {
+  const handleProceedToReview = (method: "qris" | "cash" | "transfer" | "potong gaji") => {
     if (items.length > 0) {
       setSelectMethod(method)
       setCurrentStep("review")
     }
   }
 
-  const handleProceedToPayment = (method: "qris" | "cash" | "transfer") => {
+  const handleProceedToPayment = (method: "qris" | "cash" | "transfer" | "potong gaji") => {
     setSelectMethod(method)
     setCurrentStep("payment")
   }
@@ -106,7 +106,7 @@ export function CheckoutFlow() {
       {currentStep === "review" && (
         <div className="max-w-2xl mx-auto">
           <CartSummary
-            onProceed={(method: "qris" | "cash" | "transfer") => handleProceedToPayment(method)}
+            onProceed={(method: "qris" | "cash" | "transfer" | "potong gaji") => handleProceedToPayment(method)}
             showEdit={true}
             onEdit={() => setCurrentStep("select")}
             currentStep={currentStep}

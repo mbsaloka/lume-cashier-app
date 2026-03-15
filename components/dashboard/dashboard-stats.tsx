@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, ShoppingCart, ShoppingBag } from "lucide-react"
 
 export function DashboardStats() {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [stats, setStats] = useState([
     {
       title: "Total Sales",
@@ -27,7 +26,7 @@ export function DashboardStats() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/dashboard/stats`);
+        const response = await fetch(`/api/dashboard/stats`);
         if (!response.ok) {
           throw new Error("Failed to fetch stats");
         }

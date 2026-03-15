@@ -15,7 +15,7 @@ interface ConfirmPaymentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   amount: number
-  method: "qris" | "cash" | "transfer"
+  method: "qris" | "cash" | "transfer" | "potong gaji"
   onConfirm: () => void
   confirmText?: string
   cancelText?: string

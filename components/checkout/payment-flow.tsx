@@ -10,18 +10,19 @@ import Image from "next/image"
 
 interface PaymentFlowProps {
   total: number
-  method: "qris" | "cash" | "transfer"
+  method: "qris" | "cash" | "transfer" | "potong gaji"
   onComplete: () => void
   onBack: () => void
 }
 
 export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowProps) {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
   const [paymentStatus, setPaymentStatus] = useState<"waiting" | "processing" | "success" | "failed">("waiting")
   const [qrCode, setQrCode] = useState("")
   const { items, clearCart } = useCart()
 
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [customerName, setCustomerName] = useState("")
+  const [workerNumber, setWorkerNumber] = useState("")
 
   const paymentAccounts = [
     { bank: "BCA", number: "0892013624", name: "Nazwarahma Hannum Prasetya" },
@@ -30,6 +31,11 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
   ]
 
   const createTransaction = async () => {
+    // Validate required fields for "potong gaji" method
+    if (method === "potong gaji" && (!customerName.trim() || !workerNumber.trim())) {
+      throw new Error("Customer name and worker number are required")
+    }
+
     const payload = {
       items: items.map((item) => ({
         productId: item.product._id,
@@ -39,10 +45,14 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
       })),
       total,
       method,
+      ...(method === "potong gaji" && {
+        customerName: customerName.trim(),
+        workerNumber: workerNumber.trim(),
+      }),
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/transactions`, {
+      const response = await fetch(`/api/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -54,6 +64,7 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
       }
     } catch (error) {
       console.error("Error saving transaction:", error)
+      throw error
     }
   }
 
@@ -85,7 +96,9 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
           ? "Collect payment from customer"
           : method === "transfer"
             ? "Finish payment via transfer"
-            : "Scan the QR code to pay"
+            : method === "potong gaji"
+              ? "Enter customer information"
+              : "Scan the QR code to pay"
       case "processing":
         return "Processing payment..."
       case "success":
@@ -113,6 +126,13 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
   }
 
   const handleConfirmClick = () => {
+    // Validate required fields for "potong gaji" method
+    if (method === "potong gaji") {
+      if (!customerName.trim() || !workerNumber.trim()) {
+        alert("Please enter customer name and worker number")
+        return
+      }
+    }
     setConfirmDialogOpen(true)
   }
 
@@ -120,7 +140,7 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Payment</CardTitle>
+          <CardTitle className="text-center">Payment</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
@@ -156,6 +176,36 @@ export function PaymentFlow({ total, method, onComplete, onBack }: PaymentFlowPr
 
               {paymentStatus === "waiting" && method === "cash" && (
                 <p className="text-gray-600 text-sm text-center">Please collect cash payment from customer.</p>
+              )}
+
+              {paymentStatus === "waiting" && method === "potong gaji" && (
+                <div className="space-y-4 w-full">
+                  <p className="text-center text-sm text-gray-600 mb-4">Enter customer information for salary deduction:</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                      <input
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        placeholder="Enter customer name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Worker Number</label>
+                      <input
+                        type="text"
+                        value={workerNumber}
+                        onChange={(e) => setWorkerNumber(e.target.value)}
+                        placeholder="Enter worker number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
 
               {paymentStatus === "processing" && (
