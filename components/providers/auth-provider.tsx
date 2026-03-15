@@ -11,49 +11,76 @@ interface User {
 interface AuthContextType {
   user: User | null
   login: (username: string, password: string) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
   loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const ADMIN_USER = process.env.NEXT_PUBLIC_ADMIN_USER
-  const ADMIN_PASS = process.env.NEXT_PUBLIC_ADMIN_PASS
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored auth token
-    const token = localStorage.getItem("auth-token")
-    const userData = localStorage.getItem("user-data")
+    // Verify authentication status on mount
+    async function verifyAuth() {
+      try {
+        const response = await fetch("/api/auth/verify", {
+          credentials: "include", // Important: include cookies
+        })
 
-    if (token && userData) {
-      setUser(JSON.parse(userData))
+        if (response.ok) {
+          const data = await response.json()
+          if (data.authenticated && data.user) {
+            setUser(data.user)
+          }
+        }
+      } catch (error) {
+        console.error("Error verifying auth:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-    setLoading(false)
+
+    verifyAuth()
   }, [])
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
-      const userData = {
-        id: "1",
-        username: username,
-        name: username,
-      }
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important: include cookies
+        body: JSON.stringify({ username, password }),
+      })
 
-      localStorage.setItem("auth-token", "mock-token")
-      localStorage.setItem("user-data", JSON.stringify(userData))
-      setUser(userData)
-      return true
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.user) {
+          setUser(data.user)
+          return true
+        }
+      }
+      return false
+    } catch (error) {
+      console.error("Login error:", error)
+      return false
     }
-    return false
   }
 
-  const logout = () => {
-    localStorage.removeItem("auth-token")
-    localStorage.removeItem("user-data")
-    setUser(null)
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // Important: include cookies
+      })
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      setUser(null)
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, logout, loading }}>{children}</AuthContext.Provider>

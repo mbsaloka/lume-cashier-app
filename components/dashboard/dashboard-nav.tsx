@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/providers/auth-provider"
 import { Home, Package, ShoppingCart, History, Menu, X, LogOut } from "lucide-react"
@@ -18,7 +18,13 @@ const navigation = [
 export function DashboardNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const { user, logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+    router.push("/")
+  }
 
   return (
     <nav className="bg-rose-50 shadow-sm border-b">
@@ -51,7 +57,7 @@ export function DashboardNav() {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={logout}>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -96,7 +102,7 @@ export function DashboardNav() {
               <div className="text-base font-medium text-gray-800">{user?.name}</div>
             </div>
             <div className="mt-3 px-4">
-              <Button variant="outline" size="sm" onClick={logout} className="w-full bg-transparent">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="w-full bg-transparent">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
