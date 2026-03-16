@@ -41,6 +41,7 @@ export function TransactionHistory() {
 
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchTransactions() {
@@ -65,6 +66,8 @@ export function TransactionHistory() {
         setTotalRevenue(data.totalSales)
       } catch (error) {
         console.error("Error fetching stats:", error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchRevenue()
@@ -109,6 +112,12 @@ export function TransactionHistory() {
 
   return (
     <div className="space-y-6">
+      {loading ? (
+        <div className="flex items-center justify-center py-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-600" />
+        </div>
+      ) : (
+        <>
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -193,6 +202,8 @@ export function TransactionHistory() {
           )}
         </CardContent>
       </Card>
+      </>
+      )}
     </div>
   )
 }
