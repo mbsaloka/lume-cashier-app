@@ -35,16 +35,20 @@ export function formatDateWIB(utcString: string) {
 
 export function RecentTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchTransactions() {
       try {
+        setLoading(true)
         const response = await fetch(`/api/transactions`)
         if (!response.ok) throw new Error("Failed to fetch transactions")
         const data = await response.json()
         setTransactions(data)
       } catch (error) {
         console.error("Error fetching transactions:", error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchTransactions()
@@ -60,32 +64,38 @@ export function RecentTransactions() {
         <CardTitle>Recent Transactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {transactions.map((transaction) => (
-            <div
-              key={transaction._id}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-2 sm:gap-4"
-            >
-              <div className="flex-1">
-                <p className="font-medium break-words">{transaction._id}</p>
-                <p className="text-sm text-gray-600">{formatDateWIB(transaction.createdAt)}</p>
-                <p className="text-sm text-gray-500">{stringifyItems(transaction.items)}</p>
-                {transaction.method === "potong gaji" && transaction.customerName && transaction.workerNumber && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    {transaction.customerName} (Worker: {transaction.workerNumber})
-                  </p>
-                )}
-              </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-600" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {transactions.map((transaction) => (
+              <div
+                key={transaction._id}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-2 sm:gap-4"
+              >
+                <div className="flex-1">
+                  <p className="font-medium break-words">{transaction._id}</p>
+                  <p className="text-sm text-gray-600">{formatDateWIB(transaction.createdAt)}</p>
+                  <p className="text-sm text-gray-500">{stringifyItems(transaction.items)}</p>
+                  {transaction.method === "potong gaji" && transaction.customerName && transaction.workerNumber && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {transaction.customerName} (Worker: {transaction.workerNumber})
+                    </p>
+                  )}
+                </div>
 
-              <div className="flex items-center justify-between sm:justify-end sm:flex-row gap-2">
-                <Badge className="bg-green-100 text-green-800">{transaction.method.toUpperCase()}</Badge>
-                <p className="font-bold text-right sm:text-left">
-                  Rp{transaction.total.toLocaleString("id-ID")}
-                </p>
+                <div className="flex items-center justify-between sm:justify-end sm:flex-row gap-2">
+                  <Badge className="bg-green-100 text-green-800">{transaction.method.toUpperCase()}</Badge>
+                  <p className="font-bold text-right sm:text-left">
+                    Rp{transaction.total.toLocaleString("id-ID")}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
 

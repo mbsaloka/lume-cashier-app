@@ -18,10 +18,12 @@ interface Product {
 
 export function ProductSelector() {
   const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchProducts() {
       try {
+        setLoading(true)
         const response = await fetch(`/api/products`)
         if (!response.ok) {
           throw new Error("Failed to fetch products")
@@ -30,6 +32,8 @@ export function ProductSelector() {
         setProducts(data)
       } catch (error) {
         console.error("Error fetching products:", error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchProducts()
@@ -57,6 +61,11 @@ export function ProductSelector() {
         <CardTitle>Select Products</CardTitle>
       </CardHeader>
       <CardContent>
+        {loading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-600" />
+          </div>
+        ) : (
         <div className="space-y-4">
           {/* Search and filter */}
           <div className="flex flex-col sm:flex-row gap-4">
@@ -112,6 +121,7 @@ export function ProductSelector() {
             ))}
           </div>
         </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -20,10 +20,13 @@ interface Product {
 
 export function ProductCatalog() {
   const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchProducts() {
       try {
+        setLoading(true)
         const response = await fetch(`/api/products`)
         if (!response.ok) {
           throw new Error("Failed to fetch products")
@@ -32,6 +35,8 @@ export function ProductCatalog() {
         setProducts(data)
       } catch (error) {
         console.error("Error fetching products:", error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchProducts()
@@ -109,6 +114,7 @@ export function ProductCatalog() {
     const productName = confirmDialog.product.name
 
     try {
+      setDeleteLoading(productId)
       const response = await fetch(`/api/products/${productId}`, {
         method: "DELETE",
       })
@@ -134,6 +140,8 @@ export function ProductCatalog() {
         description: (error as Error).message,
         variant: "destructive",
       })
+    } finally {
+      setDeleteLoading(null)
     }
   }
 
@@ -168,19 +176,33 @@ export function ProductCatalog() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-2 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-rose-600" />
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search products..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-          <ProductTable products={filteredProducts} onEdit={openEditForm} onDelete={handleDeleteProduct} />
+              <ProductTable products={filteredProducts} onEdit={openEditForm} onDelete={handleDeleteProduct} />
+              {deleteLoading && (
+                <div className="mt-4 text-sm text-gray-500 flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-rose-600" />
+                  Deleting product...
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
 
